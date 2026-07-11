@@ -1,6 +1,6 @@
 {
   "name": "@dloizides/analytics-web",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Product-agnostic web analytics layer for the dloizides.com portfolio: a guarded never-throws Umami event helper (track), first-touch UTM/ref/referrer attribution capture, and a snippet-injection helper that wires the Umami browser tracker by website-id. App config supplies the website-id + an enabled flag; disabled yields a no-op. Never imports a product, realm, or hardcoded id.",
   "keywords": [
     "umami",
