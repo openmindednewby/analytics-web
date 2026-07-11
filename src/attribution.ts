@@ -9,20 +9,60 @@ import { ATTRIBUTION_KEY, UTM_KEYS } from './constants';
  */
 
 /**
+ * Resolve `sessionStorage`, or `null` where the browser API does not exist.
+ *
+ * NOTE — `typeof window === 'undefined'` is NOT a native guard: React Native's
+ * `setUpGlobals` does `global.window = global`, so on a device `window` EXISTS
+ * while `sessionStorage` / `document` do NOT. The old guard fell straight
+ * through on native and every call threw a TypeError into the `catch` below.
+ * Probing the API keeps native a true no-op instead of a swallowed throw.
+ */
+function getSessionStorage(): Storage | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  try {
+    const storage: Storage | undefined = (window as Partial<Window>).sessionStorage;
+    return storage ?? null;
+  } catch {
+    // Accessing sessionStorage can throw (sandboxed iframes, privacy modes).
+    return null;
+  }
+}
+
+/** The document referrer, or `''` off-web (native / SSR have no `document`). */
+function getReferrer(): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  return document.referrer;
+}
+
+/** The current query string, or `''` off-web (native / SSR have no `location`). */
+function getSearch(): string {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  const browserLocation: Location | undefined = (window as Partial<Window>).location;
+  return browserLocation?.search ?? '';
+}
+
+/**
  * Persist UTM + ref + referrer on first touch. Idempotent within a session:
  * the FIRST snapshot wins — a later same-session navigation does not overwrite
  * it. Stores nothing when there's no attribution signal at all.
  */
 export function captureAttribution(): void {
-  if (typeof window === 'undefined') {
+  const storage = getSessionStorage();
+  if (storage === null) {
     return;
   }
   try {
-    if (window.sessionStorage.getItem(ATTRIBUTION_KEY) !== null) {
+    if (storage.getItem(ATTRIBUTION_KEY) !== null) {
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(getSearch());
     const snapshot: Record<string, string> = {};
 
     for (const key of UTM_KEYS) {
@@ -37,13 +77,13 @@ export function captureAttribution(): void {
       snapshot.ref = ref;
     }
 
-    const { referrer } = document;
+    const referrer = getReferrer();
     if (referrer !== '') {
       snapshot.referrer = referrer;
     }
 
     if (Object.keys(snapshot).length > 0) {
-      window.sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(snapshot));
+      storage.setItem(ATTRIBUTION_KEY, JSON.stringify(snapshot));
     }
   } catch {
     // Attribution is best-effort; storage may be unavailable.
@@ -52,11 +92,12 @@ export function captureAttribution(): void {
 
 /** Read back the persisted first-touch snapshot (empty object if none). */
 export function getAttribution(): Record<string, string> {
-  if (typeof window === 'undefined') {
+  const storage = getSessionStorage();
+  if (storage === null) {
     return {};
   }
   try {
-    const raw = window.sessionStorage.getItem(ATTRIBUTION_KEY);
+    const raw = storage.getItem(ATTRIBUTION_KEY);
     if (raw === null) {
       return {};
     }

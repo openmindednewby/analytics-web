@@ -117,3 +117,39 @@ describe('attribution without a window (SSR/native)', () => {
     expect(getAttribution()).toEqual({});
   });
 });
+
+/**
+ * Native safety — the case a `typeof window === 'undefined'` guard MISSES.
+ *
+ * React Native's `setUpGlobals` does `global.window = global`, so on a device
+ * `window` EXISTS while `sessionStorage` / `document` do NOT. The old guard fell
+ * straight through and every call threw a TypeError (swallowed by the catch).
+ * These lock a true no-op via capability probes.
+ */
+describe('attribution — React Native (window exists, storage/document do not)', () => {
+  const storageDescriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage');
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'sessionStorage', { value: undefined, configurable: true });
+  });
+
+  afterEach(() => {
+    if (storageDescriptor !== undefined) {
+      Object.defineProperty(window, 'sessionStorage', storageDescriptor);
+    }
+  });
+
+  it('captureAttribution no-ops without throwing', () => {
+    expect(typeof window).not.toBe('undefined'); // the old guard would pass here
+    expect(() => captureAttribution()).not.toThrow();
+  });
+
+  it('getAttribution returns an empty object without throwing', () => {
+    expect(() => getAttribution()).not.toThrow();
+    expect(getAttribution()).toEqual({});
+  });
+
+  it('getRef returns undefined without throwing', () => {
+    expect(getRef()).toBeUndefined();
+  });
+});
