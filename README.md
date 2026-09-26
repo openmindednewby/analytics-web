@@ -72,7 +72,7 @@ scripts that can't import a module facade easily):
 - `getAttribution(): Record<string,string>` — read back the snapshot.
 - `getRef(): string | undefined` — the `ref` from the snapshot.
 - `injectSnippet({ websiteId, scriptSrc? })` — append the Umami
-  `<script defer ... data-website-id>` to `<head>`. Idempotent (keyed by id).
+  `<script async ... data-website-id>` to `<head>`. Idempotent (keyed by id).
 - `isSnippetInjected(websiteId)` — whether that snippet is already present.
 - `sanitizeProps(props)` — redact PII-looking keys (email/token/password/…).
 

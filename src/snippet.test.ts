@@ -12,11 +12,11 @@ describe('injectSnippet', () => {
     clearScripts();
   });
 
-  it('injects a deferred script with the default src + website id', () => {
+  it('injects an async script with the default src + website id', () => {
     const el = injectSnippet({ websiteId: WEBSITE_ID });
 
     expect(el).not.toBeNull();
-    expect(el?.defer).toBe(true);
+    expect(el?.async).toBe(true);
     expect(el?.src).toBe(DEFAULT_SCRIPT_SRC);
     expect(el?.getAttribute(WEBSITE_ID_ATTR)).toBe(WEBSITE_ID);
     expect(document.head.contains(el)).toBe(true);

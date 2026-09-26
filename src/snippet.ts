@@ -23,7 +23,7 @@ export function isSnippetInjected(websiteId: string): boolean {
 /**
  * Inject the Umami tracking snippet into the document head for this app's
  * `websiteId`. Equivalent to hand-placing
- * `<script defer src=".../script.js" data-website-id="...">` before `</head>`,
+ * `<script async src=".../script.js" data-website-id="...">` before `</head>`,
  * but for SPAs (poueni dashboard / Vite) that don't have a static HTML template
  * to edit. Idempotent — a second call with the same id is a no-op.
  *
@@ -45,7 +45,7 @@ export function injectSnippet(options: InjectSnippetOptions): HTMLScriptElement 
   }
 
   const script = document.createElement('script');
-  script.defer = true;
+  script.async = true;
   script.src = scriptSrc;
   script.setAttribute(WEBSITE_ID_ATTR, options.websiteId);
 
