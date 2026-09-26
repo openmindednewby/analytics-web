@@ -100,19 +100,28 @@ MIT
 
 ## Core Web Vitals
 
-`createWebVitals(config)` reports CLS, INP, LCP, FCP and TTFB as one `web_vital` event each. It is framework-free; wrap `start()` in an effect. Install `web-vitals` (optional peer, `^4 || ^5`) in the app.
+`createWebVitals(config)` reports CLS, INP, LCP, FCP and TTFB as one `web_vital` event each. It is framework-free; wrap `start()` in an effect. The package never imports `web-vitals`: the app installs it (`^4 || ^5`) and passes `loadMetrics: () => import('web-vitals')`. Without `loadMetrics`, `start()` is a no-op, so an app without `web-vitals` still builds.
 
 ```ts
 import { createWebVitals } from '@dloizides/analytics-web';
 
 // Umami default: no-op unless a website id is configured.
-const vitals = createWebVitals({ websiteId: env.UMAMI_WEBSITE_ID, enabled: featureFlags.analyticsEnabled });
+const vitals = createWebVitals({
+  websiteId: env.UMAMI_WEBSITE_ID,
+  enabled: featureFlags.analyticsEnabled,
+  loadMetrics: () => import('web-vitals'),
+});
 
 // Own analytics facade + consent + DNT:
-const gated = createWebVitals({ reporter: track, canReport: () => consent.analytics, respectDoNotTrack: true });
+const gated = createWebVitals({
+  reporter: track,
+  canReport: () => consent.analytics,
+  respectDoNotTrack: true,
+  loadMetrics: () => import('web-vitals'),
+});
 
 useEffect(() => { vitals.start(); }, []); // idempotent; re-run on consent change is safe
 ```
 
-`start()` does nothing when disabled, when no reporter/website id is configured, when `canReport()` is false, under DNT (opt-in), or off-browser (SSR, React Native). `web-vitals` is only imported once every gate passes.
+`start()` does nothing when disabled, when no reporter/website id is configured, when `canReport()` is false, under DNT (opt-in), or off-browser (SSR, React Native). `loadMetrics` is only called once every gate passes.
 

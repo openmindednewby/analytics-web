@@ -54,7 +54,12 @@ export interface WebVitalsConfig {
   respectDoNotTrack?: boolean;
   /** Event name sent per measurement. Defaults to `WEB_VITAL_EVENT_NAME`. */
   eventName?: string;
-  /** Loads the metric subscriptions. Defaults to a lazy `import('web-vitals')`. */
+  /**
+   * Loads the metric subscriptions — REQUIRED to enable reporting; absent means
+   * `start()` is a no-op. The app owns the import so this package never names
+   * `web-vitals` and an app without it still builds:
+   * `loadMetrics: () => import('web-vitals')`. Called only after every gate passes.
+   */
   loadMetrics?: () => Promise<WebVitalsSource>;
 }
 

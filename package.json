@@ -66,14 +66,6 @@
   "overrides": {
     "esbuild": "^0.28.1"
   },
-  "peerDependencies": {
-    "web-vitals": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "web-vitals": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^20.19.32",
@@ -86,7 +78,6 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
-    "web-vitals": "5.1.0"
+    "typescript": "^5.4.0"
   }
 }

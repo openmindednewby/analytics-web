@@ -3,11 +3,6 @@ import { createWebVitals, WEB_VITAL_EVENT_NAME } from './webVitals';
 import type { WindowWithUmami } from './types';
 import type { WebVitalMetric, WebVitalsSource, WebVitalSubscribe } from './webVitalsTypes';
 
-jest.mock('web-vitals', () => {
-  const noop = (): void => undefined;
-  return { onCLS: noop, onFCP: noop, onINP: noop, onLCP: noop, onTTFB: noop };
-});
-
 type Emit = (metric: WebVitalMetric) => void;
 
 /** A fake `web-vitals` whose listeners the test fires by hand. */
@@ -85,7 +80,10 @@ describe('createWebVitals gating (off by construction)', () => {
     });
 
     it('blocks when respectDoNotTrack is set', () => {
-      expect(createWebVitals({ reporter: jest.fn(), respectDoNotTrack: true }).start()).toBe(false);
+      const loadMetrics = jest.fn();
+
+      expect(createWebVitals({ reporter: jest.fn(), respectDoNotTrack: true, loadMetrics }).start()).toBe(false);
+      expect(loadMetrics).not.toHaveBeenCalled();
     });
 
     it('is ignored when respectDoNotTrack is not set', () => {
@@ -185,11 +183,10 @@ describe('createWebVitals default Umami reporter', () => {
     expect(umamiTrack).toHaveBeenCalledWith(WEB_VITAL_EVENT_NAME, expect.objectContaining({ metric: 'LCP' }));
   });
 
-  it('lazy-loads web-vitals by default', async () => {
+  it('is a no-op without loadMetrics, even with a websiteId (package never imports web-vitals)', () => {
     const vitals = createWebVitals({ websiteId: 'site-1' });
 
-    expect(vitals.start()).toBe(true);
-    await flush();
-    expect(vitals.started).toBe(true);
+    expect(vitals.start()).toBe(false);
+    expect(vitals.started).toBe(false);
   });
 });

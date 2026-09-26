@@ -56,10 +56,6 @@ function resolveReporter(config: WebVitalsConfig): WebVitalReporter | undefined 
   return websiteId.trim() === '' ? undefined : track;
 }
 
-function loadWebVitals(): Promise<WebVitalsSource> {
-  return import('web-vitals');
-}
-
 function isAllowed(config: WebVitalsConfig): boolean {
   if (!(config.enabled ?? true) || !hasBrowserDom()) {
     return false;
@@ -81,24 +77,30 @@ function subscribeAll(source: WebVitalsSource, handler: (metric: WebVitalMetric)
 /**
  * Build a Core Web Vitals reporter (CLS, INP, LCP, FCP, TTFB).
  *
- * Off by construction: `start()` does nothing when `enabled` is `false`, when
- * no reporter is configured (no `reporter` and no `websiteId`), when
+ * Off by construction: `start()` does nothing when no `loadMetrics` is given
+ * (the app owns the `web-vitals` import; this package never names it), when
+ * `enabled` is `false`, when no reporter is configured (no `reporter` and no `websiteId`), when
  * `canReport()` returns `false`, under Do-Not-Track (if `respectDoNotTrack`),
- * or outside a browser DOM (SSR, React Native). `web-vitals` is imported only
- * after every gate passes, so a disabled build never loads it. A throwing
+ * or outside a browser DOM (SSR, React Native). `loadMetrics` is called only
+ * after every gate passes, so a lazy `import()` is never loaded when off. A throwing
  * reporter or a failed import is swallowed — measurement never breaks the page.
  *
- *   const vitals = createWebVitals({ websiteId: env.UMAMI_ID, enabled });
+ *   const vitals = createWebVitals({
+ *     websiteId: env.UMAMI_ID,
+ *     enabled,
+ *     loadMetrics: () => import('web-vitals'),
+ *   });
  *   useEffect(() => { vitals.start(); }, []);
  */
 export function createWebVitals(config: WebVitalsConfig = {}): WebVitalsTracker {
   let started = false;
   const eventName = config.eventName ?? WEB_VITAL_EVENT_NAME;
-  const load = config.loadMetrics ?? loadWebVitals;
+  const load = config.loadMetrics;
 
   const start = (): boolean => {
     const reporter = resolveReporter(config);
-    if (started || reporter === undefined || !isAllowed(config)) {
+    const unconfigured = load === undefined || reporter === undefined;
+    if (started || unconfigured || !isAllowed(config)) {
       return false;
     }
     started = true;
