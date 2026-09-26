@@ -40,11 +40,10 @@ function getReferrer(): string {
 
 /** The current query string, or `''` off-web (native / SSR have no `location`). */
 function getSearch(): string {
-  if (typeof window === 'undefined') {
+  if (typeof location === 'undefined') {
     return '';
   }
-  const browserLocation: Location | undefined = (window as Partial<Window>).location;
-  return browserLocation?.search ?? '';
+  return location.search;
 }
 
 /**

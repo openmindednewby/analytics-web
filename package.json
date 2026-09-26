@@ -1,7 +1,7 @@
 {
   "name": "@dloizides/analytics-web",
-  "version": "1.0.3",
-  "description": "Product-agnostic web analytics layer for the dloizides.com portfolio: a guarded never-throws Umami event helper (track), first-touch UTM/ref/referrer attribution capture, and a snippet-injection helper that wires the Umami browser tracker by website-id. App config supplies the website-id + an enabled flag; disabled yields a no-op. Never imports a product, realm, or hardcoded id.",
+  "version": "1.1.0",
+  "description": "Product-agnostic web analytics layer for the dloizides.com portfolio: a guarded never-throws Umami event helper (track), first-touch UTM/ref/referrer attribution capture, a snippet-injection helper, and a Core Web Vitals reporter (createWebVitals) that wires the Umami browser tracker by website-id. App config supplies the website-id + an enabled flag; disabled yields a no-op. Never imports a product, realm, or hardcoded id.",
   "keywords": [
     "umami",
     "analytics",
@@ -9,7 +9,8 @@
     "attribution",
     "utm",
     "web",
-    "dloizides"
+    "dloizides",
+    "web-vitals"
   ],
   "author": "dloizides",
   "license": "MIT",
@@ -65,6 +66,14 @@
   "overrides": {
     "esbuild": "^0.28.1"
   },
+  "peerDependencies": {
+    "web-vitals": "^4.0.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "web-vitals": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^20.19.32",
@@ -77,6 +86,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "web-vitals": "5.1.0"
   }
 }

@@ -5,6 +5,19 @@ All notable changes to `@dloizides/analytics-web` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-26
+
+### Added
+
+- `createWebVitals(config)` — shared Core Web Vitals reporter (CLS, INP, LCP, FCP, TTFB) replacing the per-portal `reportWebVitals` / `useWebVitalsTracking` copies (OBS-1d "Shared web-vitals in @dloizides/analytics-web"). Sends one `web_vital` event per metric with `{ metric, value, rating, id }`; CLS is rounded to 4 decimals, the rest to whole ms.
+- Off by construction (OBS-1 owner Q1 "works when switched off"): `start()` is a no-op when `enabled: false`, when neither a `reporter` nor a non-empty `websiteId` is configured, when `canReport()` returns false, under Do-Not-Track with `respectDoNotTrack: true`, and outside a browser DOM (SSR, React Native). Idempotent: listeners register once.
+- Injectable `reporter`; the default forwards to Umami through the guarded `track`.
+- `web-vitals` is an optional peer dependency (`^4 || ^5`), imported lazily only after every gate passes, so a disabled build never loads it.
+
+### Fixed
+
+- `attribution.ts` `getSearch` probes `location` directly (as `getReferrer` probes `document`); the old `window` guard was unreachable and held the 100% coverage gate below threshold.
+
 ## [1.0.3] - 2026-09-26
 
 ### Changed

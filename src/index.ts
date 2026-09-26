@@ -14,6 +14,7 @@
  *   • `captureAttribution()` / `getAttribution()` / `getRef()` — UTM/ref/referrer
  *   • `injectSnippet(opts)` / `isSnippetInjected(id)` — Umami `<script>` for SPAs
  *   • `sanitizeProps(props)` — PII redaction for event props
+ *   • `createWebVitals(config)` — Core Web Vitals reporter, no-op when off
  *   • the config / event / Umami types + constants
  */
 
@@ -22,6 +23,7 @@ export { track } from './track';
 export { captureAttribution, getAttribution, getRef } from './attribution';
 export { injectSnippet, isSnippetInjected } from './snippet';
 export { sanitizeProps } from './sanitizeProps';
+export { createWebVitals, WEB_VITAL_EVENT_NAME } from './webVitals';
 
 export {
   DEFAULT_SCRIPT_SRC,
@@ -33,6 +35,14 @@ export {
 } from './constants';
 
 export type { InjectSnippetOptions } from './snippet';
+export type {
+  WebVitalMetric,
+  WebVitalReporter,
+  WebVitalsConfig,
+  WebVitalsSource,
+  WebVitalSubscribe,
+  WebVitalsTracker,
+} from './webVitalsTypes';
 export type {
   Analytics,
   AnalyticsConfig,
